@@ -17,7 +17,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1GMlgjvRbrAhajwHzKO3BJr
    `npm install`
 2. Create a local env file:
    `cp .env.example .env.local`
-3. Add Upstash Redis credentials to `.env.local`.
+3. Add Redis credentials to `.env.local` (KV naming shown in `.env.example`).
 4. Run the app:
    `npm run dev`
 
@@ -25,6 +25,6 @@ View your app in AI Studio: https://ai.studio/apps/drive/1GMlgjvRbrAhajwHzKO3BJr
 
 1. Create an Upstash Redis database (via Vercel Integrations) and connect it to this project.
 2. Ensure the following environment variables are set in Vercel:
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
+   - `KV_REST_API_URL`
+   - `KV_REST_API_TOKEN`
 3. Deploy as a standard Vite + Vercel project.

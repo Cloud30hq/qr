@@ -1,0 +1,7 @@
+{
+  "name": "DynoQR - Personal Dynamic QR Manager",
+  "description": "A professional-grade dynamic QR code generator and management system that allows you to create, customize, and update QR code destinations without changing the printed code.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
