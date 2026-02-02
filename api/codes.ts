@@ -1,6 +1,11 @@
 import type { QRCodeData } from "../types";
 import { getIdBySlug, listCodes, redis } from "./_lib/kvHelpers.js";
 
+const isAuthorized = (req: any) => {
+  const token = (req.headers?.authorization || "").replace("Bearer ", "");
+  return Boolean(process.env.ADMIN_TOKEN && token === process.env.ADMIN_TOKEN);
+};
+
 const isValidCode = (code: QRCodeData) => {
   return Boolean(
     code.id &&
@@ -13,6 +18,11 @@ const isValidCode = (code: QRCodeData) => {
 };
 
 export default async function handler(req: any, res: any) {
+  if (!isAuthorized(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
   if (req.method === "GET") {
     const codes = await listCodes();
     codes.sort((a, b) => b.createdAt - a.createdAt);

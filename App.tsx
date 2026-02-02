@@ -13,6 +13,10 @@ function App() {
   const [editingCode, setEditingCode] = useState<QRCodeData | null>(null);
   const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [searchTerm, setSearchTerm] = useState("");
+  const [adminToken, setAdminToken] = useState(
+    localStorage.getItem("cloud30qr_admin_token") || ""
+  );
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   // Handle Hash Changes for Routing
   useEffect(() => {
@@ -30,7 +34,7 @@ function App() {
         if (isMounted) setCodes(data);
       } catch (e) {
         console.error(e);
-        alert("Failed to load QR codes.");
+        setIsAuthOpen(true);
       }
     };
     loadCodes();
@@ -52,7 +56,7 @@ function App() {
       setEditingCode(null);
     } catch (e) {
       console.error(e);
-      alert("Failed to save QR code. Slug might already exist.");
+      setIsAuthOpen(true);
     }
   };
 
@@ -66,7 +70,7 @@ function App() {
       setCodes(updated);
     } catch (e) {
       console.error(e);
-      alert("Failed to delete QR code.");
+      setIsAuthOpen(true);
     }
   };
 
@@ -206,6 +210,44 @@ function App() {
             setEditingCode(null);
           }}
         />
+      )}
+
+      {isAuthOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Admin Access</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Enter your admin token to manage QR codes.
+            </p>
+            <input
+              type="password"
+              value={adminToken}
+              onChange={(e) => setAdminToken(e.target.value)}
+              placeholder="Admin token"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+            />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => {
+                  localStorage.setItem("cloud30qr_admin_token", adminToken);
+                  setIsAuthOpen(false);
+                  window.location.reload();
+                }}
+                className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setIsAuthOpen(false);
+                }}
+                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

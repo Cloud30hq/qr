@@ -1,7 +1,17 @@
 import type { QRCodeData } from "../../types";
 import { getCodeById, getIdBySlug, redis } from "../_lib/kvHelpers.js";
 
+const isAuthorized = (req: any) => {
+  const token = (req.headers?.authorization || "").replace("Bearer ", "");
+  return Boolean(process.env.ADMIN_TOKEN && token === process.env.ADMIN_TOKEN);
+};
+
 export default async function handler(req: any, res: any) {
+  if (!isAuthorized(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
   const { id } = req.query;
   if (typeof id !== "string") {
     res.status(400).json({ error: "Invalid id" });
