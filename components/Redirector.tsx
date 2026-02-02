@@ -15,10 +15,7 @@ const Redirector: React.FC<RedirectorProps> = ({ slug }) => {
       try {
         const target = await storageService.incrementScan(slug);
         if (target) {
-          // Small delay to show the "redirecting" animation
-          timeout = window.setTimeout(() => {
-            window.location.href = target;
-          }, 800);
+          window.location.replace(target);
         } else {
           setError("This QR code link does not exist or has been removed.");
         }
@@ -28,9 +25,7 @@ const Redirector: React.FC<RedirectorProps> = ({ slug }) => {
       }
     };
     resolve();
-    return () => {
-      if (timeout) window.clearTimeout(timeout);
-    };
+    return () => {};
   }, [slug]);
 
   if (error) {
@@ -49,18 +44,8 @@ const Redirector: React.FC<RedirectorProps> = ({ slug }) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="max-w-sm w-full text-center">
-        <div className="relative w-20 h-20 mx-auto mb-8">
-           <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-           <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Redirecting...</h1>
-        <p className="text-gray-500 font-medium">Bringing you to your destination</p>
-        <div className="mt-8 text-sm text-gray-400">
-          Powered by DynoQR
-        </div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-white">
+      <div className="text-xs text-gray-300">Powered by cloud30</div>
     </div>
   );
 };
