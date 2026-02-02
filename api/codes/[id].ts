@@ -1,5 +1,5 @@
 import type { QRCodeData } from "../../types";
-import { getCodeById, getIdBySlug, redis } from "../_lib/kvHelpers";
+import { getCodeById, getIdBySlug, redis } from "../_lib/kvHelpers.js";
 
 export default async function handler(req: any, res: any) {
   const { id } = req.query;

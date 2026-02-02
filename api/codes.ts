@@ -1,5 +1,5 @@
 import type { QRCodeData } from "../types";
-import { getIdBySlug, listCodes, redis } from "./_lib/kvHelpers";
+import { getIdBySlug, listCodes, redis } from "./_lib/kvHelpers.js";
 
 const isValidCode = (code: QRCodeData) => {
   return Boolean(
