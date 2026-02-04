@@ -25,14 +25,21 @@ const QRCard: React.FC<QRCardProps> = ({ code, onDelete, onEdit }) => {
   const handleDownload = () => {
     const svg = document.getElementById(`qr-svg-${code.id}`);
     if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
+    const size = code.style.size;
+    const svgClone = svg.cloneNode(true) as SVGElement;
+    svgClone.setAttribute("width", `${size}`);
+    svgClone.setAttribute("height", `${size}`);
+    if (!svgClone.getAttribute("viewBox")) {
+      svgClone.setAttribute("viewBox", `0 0 ${size} ${size}`);
+    }
+    const svgData = new XMLSerializer().serializeToString(svgClone);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
     img.onload = () => {
-      canvas.width = code.style.size;
-      canvas.height = code.style.size;
-      ctx?.drawImage(img, 0, 0);
+      canvas.width = size;
+      canvas.height = size;
+      ctx?.drawImage(img, 0, 0, size, size);
       const pngFile = canvas.toDataURL("image/png");
       const downloadLink = document.createElement("a");
       downloadLink.download = `${code.slug}-qr.png`;
