@@ -1,9 +1,20 @@
 
+export type QRInterest =
+  | "general"
+  | "food"
+  | "fashion"
+  | "music"
+  | "sports"
+  | "tech"
+  | "travel";
+
 export interface QRCodeData {
   id: string;
   title: string;
   slug: string; // The unique ID used in the redirect URL
   targetUrl: string;
+  interest?: QRInterest;
+  logoImage?: string;
   createdAt: number;
   scanCount: number;
   lastScanned?: number;

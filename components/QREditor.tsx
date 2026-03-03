@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QRCodeData } from '../types';
-import { DEFAULT_STYLE, Icons } from '../constants';
+import { DEFAULT_STYLE, INTEREST_OPTIONS, getLogoSettings } from '../constants';
 
 interface QREditorProps {
   initialData?: QRCodeData | null;
@@ -16,10 +16,12 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
       title: '',
       slug: '',
       targetUrl: '',
+      interest: 'general',
       style: { ...DEFAULT_STYLE }
     }
   );
   const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
+  const [logoError, setLogoError] = useState("");
 
   const makeSlug = (title: string) =>
     title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
@@ -32,6 +34,32 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
     setIsGeneratingSlug(false);
   };
 
+  const handleLogoUpload = (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setLogoError("Please upload a valid image file.");
+      return;
+    }
+    const maxBytes = 1024 * 1024;
+    if (file.size > maxBytes) {
+      setLogoError("Image must be 1MB or smaller.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      if (!result) {
+        setLogoError("Could not read image file.");
+        return;
+      }
+      setLogoError("");
+      setFormData(prev => ({ ...prev, logoImage: result }));
+    };
+    reader.onerror = () => setLogoError("Could not read image file.");
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.slug || !formData.targetUrl) return;
@@ -41,6 +69,8 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
       title: formData.title || '',
       slug: formData.slug || '',
       targetUrl: formData.targetUrl || '',
+      interest: formData.interest || "general",
+      logoImage: formData.logoImage,
       createdAt: initialData?.createdAt || Date.now(),
       scanCount: initialData?.scanCount || 0,
       lastScanned: initialData?.lastScanned,
@@ -63,6 +93,7 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
               bgColor={formData.style?.bgColor}
               level={formData.style?.level}
               includeMargin={formData.style?.includeMargin}
+              imageSettings={getLogoSettings(formData.interest, 200, formData.logoImage)}
             />
           </div>
           <div className="text-center">
@@ -131,6 +162,52 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
               />
               <p className="text-xs text-gray-500">This is where users will go when they scan. You can change this anytime!</p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-gray-700">Audience Interest</label>
+              <select
+                value={formData.interest || "general"}
+                onChange={e => setFormData(p => ({ ...p, interest: e.target.value as QRCodeData["interest"] }))}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              >
+                {INTEREST_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500">A matching logo will be placed in the center of this QR code.</p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-gray-700">Custom Logo Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleLogoUpload(e.target.files?.[0])}
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-blue-700"
+              />
+              <div className="flex items-center gap-3">
+                {formData.logoImage && (
+                  <img
+                    src={formData.logoImage}
+                    alt="Logo preview"
+                    className="h-12 w-12 rounded-md border border-gray-200 object-cover"
+                  />
+                )}
+                {formData.logoImage && (
+                  <button
+                    type="button"
+                    onClick={() => setFormData(p => ({ ...p, logoImage: undefined }))}
+                    className="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50"
+                  >
+                    Remove logo
+                  </button>
+                )}
+              </div>
+              {logoError && <p className="text-xs text-red-600">{logoError}</p>}
+              <p className="text-xs text-gray-500">Uploaded image overrides the interest logo. Max file size: 1MB.</p>
             </div>
 
             <div className="pt-4 border-t border-gray-100">

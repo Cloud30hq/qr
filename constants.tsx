@@ -1,5 +1,6 @@
 
 import React from 'react';
+import type { QRInterest } from './types';
 
 export const APP_NAME = "cloud30qr";
 
@@ -9,6 +10,58 @@ export const DEFAULT_STYLE = {
   level: 'M' as const,
   includeMargin: true,
   size: 256,
+};
+
+export const INTEREST_OPTIONS: Array<{ value: QRInterest; label: string }> = [
+  { value: "general", label: "General" },
+  { value: "food", label: "Food" },
+  { value: "fashion", label: "Fashion" },
+  { value: "music", label: "Music" },
+  { value: "sports", label: "Sports" },
+  { value: "tech", label: "Tech" },
+  { value: "travel", label: "Travel" }
+];
+
+const logoMeta: Record<QRInterest, { letter: string; bg: string }> = {
+  general: { letter: "G", bg: "#475569" },
+  food: { letter: "F", bg: "#ea580c" },
+  fashion: { letter: "S", bg: "#be185d" },
+  music: { letter: "M", bg: "#6d28d9" },
+  sports: { letter: "P", bg: "#15803d" },
+  tech: { letter: "T", bg: "#0e7490" },
+  travel: { letter: "R", bg: "#0369a1" }
+};
+
+const logoSvg = (letter: string, bg: string) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+    <rect width="120" height="120" rx="24" fill="#ffffff"/>
+    <rect x="6" y="6" width="108" height="108" rx="20" fill="${bg}"/>
+    <text x="60" y="78" text-anchor="middle" font-family="Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff">${letter}</text>
+  </svg>`;
+
+export const getInterestLabel = (interest?: QRInterest) => {
+  const current = INTEREST_OPTIONS.find((option) => option.value === interest);
+  return current?.label || "General";
+};
+
+export const getInterestLogoSrc = (interest?: QRInterest) => {
+  const key = interest || "general";
+  const { letter, bg } = logoMeta[key];
+  return `data:image/svg+xml;utf8,${encodeURIComponent(logoSvg(letter, bg))}`;
+};
+
+export const getLogoSettings = (
+  interest: QRInterest | undefined,
+  qrSize: number,
+  customLogoSrc?: string
+) => {
+  const logoSize = Math.max(24, Math.floor(qrSize * 0.22));
+  return {
+    src: customLogoSrc || getInterestLogoSrc(interest),
+    width: logoSize,
+    height: logoSize,
+    excavate: true
+  };
 };
 
 // Simple icon components using SVG paths

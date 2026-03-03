@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QRCodeData } from '../types';
-import { Icons } from '../constants';
+import { Icons, getInterestLabel, getLogoSettings } from '../constants';
 
 interface QRCardProps {
   code: QRCodeData;
@@ -61,6 +61,7 @@ const QRCard: React.FC<QRCardProps> = ({ code, onDelete, onEdit }) => {
             bgColor={code.style.bgColor}
             level={code.style.level}
             includeMargin={code.style.includeMargin}
+            imageSettings={getLogoSettings(code.interest, 100, code.logoImage)}
           />
         </div>
         
@@ -85,6 +86,9 @@ const QRCard: React.FC<QRCardProps> = ({ code, onDelete, onEdit }) => {
           
           <div className="text-xs font-mono text-gray-400 mb-2 truncate">
             /{code.slug}
+          </div>
+          <div className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-600">
+            {getInterestLabel(code.interest)}
           </div>
 
           <div className="flex items-center gap-4 mt-3">
