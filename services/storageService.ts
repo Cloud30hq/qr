@@ -1,7 +1,13 @@
 
 import { QRCodeData } from "../types";
 
-const getAdminToken = () => localStorage.getItem("cloud30qr_admin_token") || "";
+let adminToken = "";
+
+const getAdminToken = () => adminToken;
+
+const setAdminToken = (token: string) => {
+  adminToken = token.trim();
+};
 
 const authHeaders = () =>
   getAdminToken()
@@ -17,6 +23,8 @@ const handleJson = async <T>(res: Response): Promise<T> => {
 };
 
 export const storageService = {
+  setAdminToken,
+
   getCodes: async (): Promise<QRCodeData[]> => {
     const res = await fetch("/api/codes", {
       headers: authHeaders()

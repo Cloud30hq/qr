@@ -13,9 +13,8 @@ function App() {
   const [editingCode, setEditingCode] = useState<QRCodeData | null>(null);
   const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [searchTerm, setSearchTerm] = useState("");
-  const [adminToken, setAdminToken] = useState(
-    localStorage.getItem("cloud30qr_admin_token") || ""
-  );
+  const [adminToken, setAdminToken] = useState("");
+  const [authError, setAuthError] = useState("");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   // Handle Hash Changes for Routing
@@ -80,6 +79,19 @@ function App() {
       c.slug.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [codes, searchTerm]);
+
+  const handleAuthSave = async () => {
+    try {
+      setAuthError("");
+      storageService.setAdminToken(adminToken);
+      const data = await storageService.getCodes();
+      setCodes(data);
+      setIsAuthOpen(false);
+    } catch (e) {
+      console.error(e);
+      setAuthError("Invalid token. Please try again.");
+    }
+  };
 
   // Redirection Route Logic
   if (currentHash.startsWith('#/r/')) {
@@ -222,17 +234,17 @@ function App() {
             <input
               type="password"
               value={adminToken}
-              onChange={(e) => setAdminToken(e.target.value)}
+              onChange={(e) => {
+                setAdminToken(e.target.value);
+                setAuthError("");
+              }}
               placeholder="Admin token"
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             />
+            {authError && <p className="text-xs text-red-600 mt-2">{authError}</p>}
             <div className="flex gap-3 mt-4">
               <button
-                onClick={() => {
-                  localStorage.setItem("cloud30qr_admin_token", adminToken);
-                  setIsAuthOpen(false);
-                  window.location.reload();
-                }}
+                onClick={handleAuthSave}
                 className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
               >
                 Save
