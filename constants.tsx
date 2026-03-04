@@ -51,13 +51,14 @@ export const getInterestLogoSrc = (interest?: QRInterest) => {
 };
 
 export const getLogoSettings = (
-  interest: QRInterest | undefined,
+  _interest: QRInterest | undefined,
   qrSize: number,
   customLogoSrc?: string
 ) => {
+  if (!customLogoSrc) return undefined;
   const logoSize = Math.max(24, Math.floor(qrSize * 0.22));
   return {
-    src: customLogoSrc || getInterestLogoSrc(interest),
+    src: customLogoSrc,
     width: logoSize,
     height: logoSize,
     excavate: true

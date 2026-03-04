@@ -177,7 +177,7 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500">A matching logo will be placed in the center of this QR code.</p>
+              <p className="text-xs text-gray-500">Used to categorize this QR code in your dashboard.</p>
             </div>
 
             <div className="space-y-1">
@@ -207,7 +207,7 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
                 )}
               </div>
               {logoError && <p className="text-xs text-red-600">{logoError}</p>}
-              <p className="text-xs text-gray-500">Uploaded image overrides the interest logo. Max file size: 1MB.</p>
+              <p className="text-xs text-gray-500">If no image is uploaded, QR is generated normally with no center cutout. Max file size: 1MB.</p>
             </div>
 
             <div className="pt-4 border-t border-gray-100">
