@@ -26,3 +26,11 @@ export const listCodes = async () => {
   const records = await redis.mget<QRCodeData>(...ids.map(id => `code:${id}`));
   return records.filter(Boolean) as QRCodeData[];
 };
+
+export const listCodesByOwner = async (ownerKey: string) => {
+  const ids = await redis.smembers<string>(`owner:${ownerKey}:codes`);
+  if (!ids.length) return [];
+  const records = await redis.mget<QRCodeData>(...ids.map(id => `code:${id}`));
+  return records
+    .filter((code): code is QRCodeData => Boolean(code) && code.ownerKey === ownerKey);
+};

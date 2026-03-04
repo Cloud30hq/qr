@@ -1,9 +1,15 @@
 import type { QRCodeData } from "../types";
-import { getIdBySlug, listCodes, redis } from "./_lib/kvHelpers.js";
+import { getIdBySlug, listCodes, listCodesByOwner, redis } from "./_lib/kvHelpers.js";
 
-const isAuthorized = (req: any) => {
+const isAdmin = (req: any) => {
   const token = (req.headers?.authorization || "").replace("Bearer ", "");
   return Boolean(process.env.ADMIN_TOKEN && token === process.env.ADMIN_TOKEN);
+};
+
+const getOwnerKey = (req: any) => {
+  const ownerKey = req.headers?.["x-owner-key"];
+  if (typeof ownerKey !== "string") return "";
+  return ownerKey.trim();
 };
 
 const isValidCode = (code: QRCodeData) => {
@@ -18,13 +24,15 @@ const isValidCode = (code: QRCodeData) => {
 };
 
 export default async function handler(req: any, res: any) {
-  if (!isAuthorized(req)) {
+  const admin = isAdmin(req);
+  const ownerKey = getOwnerKey(req);
+  if (!admin && !ownerKey) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
 
   if (req.method === "GET") {
-    const codes = await listCodes();
+    const codes = admin ? await listCodes() : await listCodesByOwner(ownerKey);
     codes.sort((a, b) => b.createdAt - a.createdAt);
     res.status(200).json(codes);
     return;
@@ -47,9 +55,17 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  await redis.set(`code:${code.id}`, code);
-  await redis.set(`slug:${code.slug}`, code.id);
-  await redis.sadd("codes", code.id);
+  const saved: QRCodeData = {
+    ...code,
+    ownerKey: admin ? (code.ownerKey || "admin") : ownerKey
+  };
 
-  res.status(201).json(code);
+  await redis.set(`code:${saved.id}`, saved);
+  await redis.set(`slug:${saved.slug}`, saved.id);
+  await redis.sadd("codes", code.id);
+  if (saved.ownerKey) {
+    await redis.sadd(`owner:${saved.ownerKey}:codes`, saved.id);
+  }
+
+  res.status(201).json(saved);
 }

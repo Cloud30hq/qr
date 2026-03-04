@@ -16,6 +16,7 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
       title: '',
       slug: '',
       targetUrl: '',
+      scanMode: 'dynamic',
       interest: 'general',
       style: { ...DEFAULT_STYLE }
     }
@@ -69,6 +70,7 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
       title: formData.title || '',
       slug: formData.slug || '',
       targetUrl: formData.targetUrl || '',
+      scanMode: formData.scanMode || "dynamic",
       interest: formData.interest || "general",
       logoImage: formData.logoImage,
       createdAt: initialData?.createdAt || Date.now(),
@@ -80,6 +82,11 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
     onSave(finalData);
   };
 
+  const qrValue =
+    formData.scanMode === "direct"
+      ? formData.targetUrl || "https://example.com"
+      : `${window.location.origin}${window.location.pathname}#/r/${formData.slug || "your-slug"}`;
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full flex flex-col md:flex-row overflow-hidden max-h-[90vh]">
@@ -87,7 +94,7 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
         <div className="w-full md:w-1/3 bg-gray-50 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-100">
           <div className="bg-white p-4 rounded-xl shadow-inner border border-gray-100 mb-4">
             <QRCodeSVG
-              value={formData.targetUrl || "https://example.com"}
+              value={qrValue}
               size={200}
               fgColor={formData.style?.fgColor}
               bgColor={formData.style?.bgColor}
@@ -149,6 +156,19 @@ const QREditor: React.FC<QREditorProps> = ({ initialData, onSave, onClose }) => 
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-gray-700">Scan Behavior</label>
+              <select
+                value={formData.scanMode || "dynamic"}
+                onChange={e => setFormData(p => ({ ...p, scanMode: e.target.value as QRCodeData["scanMode"] }))}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              >
+                <option value="dynamic">Dynamic redirect (track scans, editable target)</option>
+                <option value="direct">Direct destination (scanner shows target domain)</option>
+              </select>
+              <p className="text-xs text-gray-500">Direct mode bypasses the `/r/slug` redirect path so destination branding appears immediately.</p>
             </div>
 
             <div className="space-y-1">

@@ -123,6 +123,12 @@ function App() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                </div>
+               <button
+                onClick={() => setIsAuthOpen(true)}
+                className="hidden sm:inline-flex border border-gray-300 text-gray-700 font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-all"
+               >
+                 Admin
+               </button>
                <button 
                 onClick={() => {
                   setEditingCode(null);

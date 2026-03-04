@@ -2,6 +2,7 @@
 import { QRCodeData } from "../types";
 
 let adminToken = "";
+const OWNER_KEY_STORAGE = "cloud30qr_owner_key";
 
 const getAdminToken = () => adminToken;
 
@@ -9,10 +10,21 @@ const setAdminToken = (token: string) => {
   adminToken = token.trim();
 };
 
+const getOwnerKey = () => {
+  if (typeof window === "undefined") return "";
+  let ownerKey = localStorage.getItem(OWNER_KEY_STORAGE) || "";
+  if (!ownerKey) {
+    ownerKey = crypto.randomUUID();
+    localStorage.setItem(OWNER_KEY_STORAGE, ownerKey);
+  }
+  return ownerKey;
+};
+
 const authHeaders = () =>
-  getAdminToken()
-    ? { Authorization: `Bearer ${getAdminToken()}` }
-    : {};
+  ({
+    ...(getAdminToken() ? { Authorization: `Bearer ${getAdminToken()}` } : {}),
+    "x-owner-key": getOwnerKey()
+  });
 
 const handleJson = async <T>(res: Response): Promise<T> => {
   if (!res.ok) {

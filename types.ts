@@ -8,11 +8,15 @@ export type QRInterest =
   | "tech"
   | "travel";
 
+export type QRScanMode = "dynamic" | "direct";
+
 export interface QRCodeData {
   id: string;
   title: string;
   slug: string; // The unique ID used in the redirect URL
   targetUrl: string;
+  scanMode?: QRScanMode;
+  ownerKey?: string;
   interest?: QRInterest;
   logoImage?: string;
   createdAt: number;
